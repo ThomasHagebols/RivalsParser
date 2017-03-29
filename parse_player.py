@@ -6,16 +6,19 @@
 from lxml import html
 import requests
 import pandas as pd
+from bs4 import BeautifulSoup
+
 
 # Check if the total number of bids checks out with the number of rows
 # Check it the number of accepted bids is exactly 1
 def check_offer_errors(tr):
-    nr_of_bids = len(tr.xpath('//*[@id="college_choices"]/tbody/tr'))
-    nr_schools = tr.xpath('//a[@class="school"]/text()')
+    nr_of_rows = len(tr.xpath('//*[@id="college_choices"]/tbody/tr'))
+    nr_schools = len(tr.xpath('//a[@class="school"]/text()'))-1
     nr_accepted_bids = len(tr.xpath('//div[@class="checkmark-yellow"]'))
     nr_declined_bids = len(tr.xpath('//div[@class="checkmark-gray"]'))
-    if nr_accepted_bids != 1 or (nr_accepted_bids + nr_declined_bids != nr_of_bids) or nr_of_bids!=nr_schools:
-        print("We got the following values", nr_accepted_bids, nr_declined_bids, nr_of_bids)
+    if nr_accepted_bids != 1 or (nr_accepted_bids + nr_declined_bids != nr_of_rows) or nr_of_rows!=nr_schools:
+        print("We got the following values")
+        print("accepted:", nr_accepted_bids, "declined:", nr_declined_bids, "rows:", nr_of_rows, "schools:", nr_schools)
         raise ValueError("The number of accepted, declined and total bids doesn't checkout")
 
 
@@ -29,10 +32,12 @@ def parse_player_page(url):
         check_offer_errors(tree)
     except ValueError:
         print("Something doesn't checkout in the number of offers (declined or accepted) at url: ", url)
+        # raise ValueError("The number of accepted, declined and total bids doesn't checkout")
 
     schools = tree.xpath('//a[@class="school"]/text()')
     nr_of_bids = len(schools) - 1
 
+    # Make list with a single 1 at the first element and the rest 0
     offer_status = [0] * nr_of_bids
     offer_status[0] = 1
 
@@ -46,5 +51,6 @@ if __name__ == "__main__":
     # This page gives a problem!!
     # Bowling Green is not included since it is not an <a>, but a <div>
     # Idea to fix dynamic page problem
+    # //rv-commitments/@prospects
     data = parse_player_page('https://n.rivals.com/content/prospects/19949')
     print(data)
