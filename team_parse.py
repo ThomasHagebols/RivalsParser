@@ -1,14 +1,15 @@
 # Code by Thomas Hagebols
 # Github account: ThomasHagebols
-# LinkedIn account: https://www.linkedin.com/in/thomas-hagebols-032676a8/
+# LinkedIn account: https://www.linkedin.com/in/thomas-hagebols/
 # Date: 2017-04-21
 
-from lxml import html
-import requests
-import pandas as pd
-from bs4 import BeautifulSoup
-import json
-import parse_player
+from preamble import *
+import player_parse
+
+# import time
+# import random
+
+# random.seed()
 
 # Parse the list of url's of all players
 def get_players(url, year):
@@ -38,9 +39,12 @@ def get_players(url, year):
 # To test the individual script
 if __name__ == "__main__":
     for year in range(2005, 2014):
-        print("\n\n year:", year)
+        print("\n\nyear:", year)
         url_list = get_players('https://bostoncollege.rivals.com/commitments/football/', year)
 
         for i, url in enumerate(url_list):
-            print("Parsing url", i+1, "of", len(url_list), url)
-            parse_player.parse_player_page(url)
+            print("\nParsing url", i+1, "of", len(url_list), url)
+            data = player_parse.parse_player_page(url)
+            print(data)
+            # n = random.random()
+            # time.sleep(n*2)
