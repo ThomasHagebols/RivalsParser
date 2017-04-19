@@ -5,6 +5,8 @@
 
 from preamble import *
 
+
+
 # Parse the page of a single player
 def parse_player_page(url):
     page = requests.get(url)
@@ -14,9 +16,9 @@ def parse_player_page(url):
     json_data = tree.xpath('//div[@id="articles"]/@ng-init')
 
     # Write to file. For debugging purposes
-    f = open( 'file.json', 'w' )
-    f.write("\"general\":" + json_data[0][5:-1])
-    f.close()
+    # f = open( 'data/file.json', 'w' )
+    # f.write("\"general\":" + json_data[0][5:-1])
+    # f.close()
 
     # Parse JSON
     parsed_json = json.loads(json_data[0][5:-1])
@@ -32,11 +34,13 @@ def parse_player_page(url):
         col_name = prospect_college["college"]["short_name"]
         col_sign = prospect_college["sign"]
         col_commit = prospect_college["commit"]
+        col_offer = prospect_college["offer"]
 
-        colleges.append({"college_id": col_id, "college_name": col_name, "commit": col_commit})
+        if col_offer == True:
+            colleges.append({"college_id": col_id, "college_name": col_name, "commit": col_commit})
 
-        if col_commit == True:
-            committed = True
+            if col_commit == True:
+                committed = True
 
         # print(colleges[index])
 
