@@ -78,15 +78,20 @@ def process_players(urls, win_bet_col_id):
 
     return matrix_operations, player_urls_with_errors
 
-def do_operations(adjacency_matrix, operations, college_ids):
-    # Perform all operations in the operation list
+def do_operations(adjacency_matrix, operations, colleges_pd):
+    # Perform all operations in the operation list on the adjacency matrix
     for operation in operations:
         # Only apply operations of colleges which should in the final dataset
-        if any(college_ids == operation[0]):
-            adjacency_matrix[college_ids == operation[0], college_ids == operation[1]] += 1
-            print('changing value of ',operation)
-            print('maps to:', college_ids == operation[0], college_ids == operation[1])
-            print('Has value', adjacency_matrix[college_ids == operation[0], college_ids == operation[1]])
+        if any(colleges_pd.college_id == operation[0]):
+            x = colleges_pd[colleges_pd.college_id == operation[0]].index.tolist()
+            y = colleges_pd[colleges_pd.college_id == operation[1]].index.tolist()
+            adjacency_matrix[x,y] += 1
+
+            # print('changing value of ',operation)
+            # print('maps to:', x,y)
+            # print('Has value', adjacency_matrix[x,y])
+
+    input("Press Enter to continue...")
 
     return
 
@@ -96,7 +101,6 @@ def do_operations(adjacency_matrix, operations, college_ids):
 if __name__ == "__main__":
     data_path = 'data/'
     player_urls_with_errors = []
-    college_urls = pd.read_csv(data_path + 'universities.csv', names=['abbrivation', 'url'])
 
 
     # get college information
@@ -105,6 +109,7 @@ if __name__ == "__main__":
         # import the data from the csv
         colleges_pd = pd.read_csv(data_path + 'colleges_info.csv')
     else:
+        college_urls = pd.read_csv(data_path + 'universities.csv', names=['abbrivation', 'url'])
         # create the csv
         colleges = []
         for college_url in college_urls['url']:
@@ -116,11 +121,11 @@ if __name__ == "__main__":
 
     for year in range(2003, 2014):
         print('Processing year:', year)
-        adjacency_matrix = np.zeros((len(college_urls), len(college_urls)))
+        adjacency_matrix = np.zeros((len(colleges_pd.index), len(colleges_pd.index)))
         matrix_operations=[]
 
         for index, college in colleges_pd.iterrows():
-            print('Processing college', index, 'of', len(colleges_pd))
+            print('Processing college', index, 'of', len(colleges_pd.index))
             url_list = get_players(college.url, year)
 
             op, puwe = process_players(url_list, college.college_id)
@@ -133,11 +138,7 @@ if __name__ == "__main__":
             # matrix_operations = filter(matrix_operations, colleges_pd.college_id)
 
         # Apply operations to matrix
-        do_operations(adjacency_matrix, matrix_operations, colleges_pd.college_id)
+        do_operations(adjacency_matrix, matrix_operations, colleges_pd)
         pd.DataFrame(adjacency_matrix).to_csv(data_path + str(year)+'.csv')
 
     pd.DataFrame(player_urls_with_errors).to_csv(data_path + 'pages_with_errors.csv')
-
-            # TODO Remove colleges not in set!
-            # apply_matrix_operations(operations, adjacency_matrix)
-
