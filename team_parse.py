@@ -91,7 +91,7 @@ def do_operations(adjacency_matrix, operations, colleges_pd):
             # print('maps to:', x,y)
             # print('Has value', adjacency_matrix[x,y])
 
-    input("Press Enter to continue...")
+    # input("Press Enter to continue...")
 
     return
 
